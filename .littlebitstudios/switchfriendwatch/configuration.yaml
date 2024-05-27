@@ -1,0 +1,15 @@
+email:
+  debugmode: false # enable this if you're troubleshooting smtplib
+  enabled: true # leave this true, setting this false will suppress emails
+  pass: 'password' # SMTP password, if a service uses 2FA you may need a specific app password
+  port: 465 # SMTP port, check with your email provider
+  sendfrom: example@example.com # the source email address
+  sendtest: 'off' # send a test email by setting this to 'watched' or 'unwatched' and running the script
+  sendto: you@example.com # the email you want to receive notifications at
+  server: smtp.example.com # the SMTP server of the source email address
+  user: example@example.com # SMTP username, this is usually the source email address but could be different depending on provider
+lastcheck: '2024-05-27T13:49:22.643963' # do not change this, the script uses this timestamp as a reference for when it last ran
+watched: # list of watched players
+- Player
+watchedonly: false # set this to true to only be notified about watched players
+windowsmode: false # set this to true if running on a Windows machine
