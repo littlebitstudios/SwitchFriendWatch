@@ -67,4 +67,4 @@ If you want a beginner's home server, maybe look into a Linux-based single-board
 # Credits
 The Nintendo Switch gaming system and Nintendo Accounts are owned by Nintendo Co. Ltd. and its regional subsidiaries.
 
-nxapi is a tool created by [@samuelthomas2774](https://github.com/samuelthomas2774).
+nxapi is a tool created by [@samuelthomas2774](https://github.com/samuelthomas2774), licensed under the [GNU AGPL 3.0](https://www.gnu.org/licenses/agpl-3.0).
