@@ -33,7 +33,7 @@ The -g flag is required because by default only global npm packages are in the P
 Run `nxapi nso auth` and it will tell you how to authenticate with your Nintendo Account.
 
 # Configuration
-The script calls from a configuration file located at `<home folder>/.littlebitstudios/switchfriendwatch/configuration.yaml`.
+The script calls from a configuration file located at `<home folder>/.littlebitstudios/switchfriendwatch/configuration.yaml`. Simply copy the `.littlebitstudios` folder from the repository to your home folder.
 
 This is the structure of the file:
 ```yaml
@@ -53,6 +53,8 @@ watched: # list of watched players
 watchedonly: false # set this to true to only be notified about watched players
 windowsmode: false # set this to true if running on a Windows machine
 ```
+
+Please be aware that all comments in the file will disappear when the script is ran for the first time, as the script constantly rewrites the configuration file 
 
 # Usage
 To run the script once you have created the configuration file, just run `python3 <path to file>` like any other Python script.
