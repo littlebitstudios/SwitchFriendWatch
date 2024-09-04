@@ -20,7 +20,7 @@ For Ubuntu:
 sudo apt install nodejs
 ```
 
-Follow separate instructions for your OS if you aren't using Windows or Ubuntu.
+If you aren't on Windows or Ubuntu, go to https://nodejs.org to install Node.js.
 
 ## Install nxapi
 npm should have been installed when Node.js was installed, so you can install nxapi with this command:
