@@ -37,24 +37,25 @@ The script calls from a configuration file located at `<home folder>/.littlebits
 
 This is the structure of the file:
 ```yaml
+aliases: # optional: add aliases here in the format of <NSA ID>: <alias>
+  b023adfefd82147a: LittleBit670 # example
 email:
-  debugmode: false # enable this if you're troubleshooting smtplib
-  enabled: true # leave this true, setting this false will suppress emails
-  pass: 'password' # SMTP password, if a service uses 2FA you may need a specific app password
-  port: 465 # SMTP port, check with your email provider
-  sendfrom: example@example.com # the source email address
-  sendtest: 'off' # send a test email by setting this to 'watched' or 'unwatched' and running the script
-  sendto: you@example.com # the email you want to receive notifications at
-  server: smtp.example.com # the SMTP server of the source email address
-  user: example@example.com # SMTP username, this is usually the source email address but could be different depending on provider
-lastcheck: '2024-05-27T13:49:22.643963' # do not change this, the script uses this timestamp as a reference for when it last ran
-watched: # list of watched players
-- Player
-watchedonly: false # set this to true to only be notified about watched players
-windowsmode: false # set this to true if running on a Windows machine
-```
-
-Please be aware that all comments in the file will disappear when the script is ran for the first time, as the script constantly rewrites the configuration file 
+  debugmode: false # if running in the command line, smtplib will print debug info if this is true
+  enabled: true # if false, no emails will be sent
+  pass: # put smtp password here
+  port: 465 # smtp port, usually 465 or 587
+  sendfrom: # put from email here
+  sendtest: 'off' # set to 'normal' or 'watched' to send a test email on next run, must be reset to off otherwise it will keep sending test emails
+  server: # smtp server
+  user: # smtp username, usually the same as the from email
+watched: # this field is optional
+- LittleBit # example of nickname
+- b023adfefd82147a # example of NSA ID
+# above is the list of watched friends; you can add watches by nickname or NSA ID
+# NSA IDs can be obtained using the command "nxapi nso friends" or with the nxapi desktop app
+windowsmode: false # this must be true for Windows users; not needed for MacOS or Linux
+watchedonly: true # if true, only watched friends will trigger a notification; the watched list is required if this is true
+``` 
 
 # Usage
 To run the script once you have created the configuration file, just run `python3 <path to file>` like any other Python script.
