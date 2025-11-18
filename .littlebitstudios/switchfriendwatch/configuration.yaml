@@ -1,14 +1,10 @@
 aliases: # optional: add aliases here in the format of <NSA ID>: <alias>
   b023adfefd82147a: LittleBit670 # example
-email:
-  debugmode: false # if running in the command line, smtplib will print debug info if this is true
-  enabled: true # if false, no emails will be sent
-  pass: # put smtp password here
-  port: 465 # smtp port, usually 465 or 587
-  sendfrom: # put from email here
-  sendtest: 'off' # set to 'normal' or 'watched' to send a test email on next run, must be reset to off otherwise it will keep sending test emails
-  server: # smtp server
-  user: # smtp username, usually the same as the from email
+ntfy:
+  enabled: true # if false, no push notifications will be sent
+  server: "https://ntfy.sh" # The base URL of your ntfy server (use a self-hosted one or the public one)
+  topic: "your_unique_switch_friend_topic" # REQUIRED: The topic name to which the script will publish and your app is subscribed
+  sendtest: 'off' # set to 'unwatched' or 'watched' to send a test notification on next run, must be reset to off
 watched: # this field is optional
 - LittleBit # example of nickname
 - b023adfefd82147a # example of NSA ID
