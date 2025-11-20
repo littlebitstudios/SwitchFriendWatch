@@ -13,7 +13,7 @@ You can install all dependencies using the `requirements.txt` file:
 
 ```bash
 pip install -r requirements.txt
-````
+```
 
 # Installing nxapi
 
