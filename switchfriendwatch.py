@@ -8,7 +8,7 @@ import requests  # Added for sending ntfy push notifications
 
 softwarepath = os.path.expanduser("~/.littlebitstudios/switchfriendwatch/")
 configpath = softwarepath + "configuration.yaml"
-friendscache = softwarepath + "friendscache.json"
+friendscachefile = softwarepath + "friendscache.json"
 lastcheckpath = softwarepath + "lastcheck.txt"
 
 # Ensure the lastcheckpath file exists and read the last check time
@@ -67,7 +67,14 @@ ntfy_base_url = config["ntfy"]["server"]
 ntfy_topic = config["ntfy"]["topic"]
 
 
-def send_ntfy_notification(title, message, priority=3, tags=None):
+def send_ntfy_notification(
+    title: str,
+    message: str,
+    priority: int = 3,
+    tags: list[str] = [],
+    icon: str = "",
+    image: str = "",
+):
     """Sends a push notification via ntfy."""
     try:
         headers = {
@@ -76,6 +83,10 @@ def send_ntfy_notification(title, message, priority=3, tags=None):
         }
         if tags:
             headers["Tags"] = ",".join(tags)
+        if icon:
+            headers["Icon"] = icon
+        if image:
+            headers["Attach"] = image
 
         # Use the base URL + topic to form the full endpoint
         response = requests.post(
@@ -90,31 +101,55 @@ def send_ntfy_notification(title, message, priority=3, tags=None):
         print(f"Error sending ntfy notification: {e}")
 
 
-def send_ntfy_online(username, game, lastchange):
+def send_ntfy_online(
+    username: str,
+    game: str,
+    lastchange: datetime.datetime,
+    icon: str = "",
+    image: str = "",
+    platform: int = 0,
+):
     """Sends an ntfy notification for an unwatched friend going online."""
     title = f"Friend Online"
+    platformstr = (
+        "NS2" if platform == 2 else "NS1" if platform == 1 else "unknown console"
+    )
     message = (
-        f"{username} is now online playing {game}. "
+        f"{username} is now online playing {game} ({platformstr}). "
         f"Last status update: {lastchange.strftime('%b %d, %Y at %I:%M %p')}."
     )
-    send_ntfy_notification(title, message, priority=3, tags=["video_game"])
+    send_ntfy_notification(
+        title, message, priority=3, tags=["video_game"], icon=icon, image=image
+    )
 
 
-def send_ntfy_onlinewatched(username, game, lastchange):
+def send_ntfy_onlinewatched(
+    username: str,
+    game: str,
+    lastchange: datetime.datetime,
+    icon: str = "",
+    image: str = "",
+    platform: int = 0,
+):
     """Sends an ntfy notification for a WATCHED friend going online (higher priority)."""
     title = f"Watched Friend Online"
+    platformstr = (
+        "NS2" if platform == 2 else "NS1" if platform == 1 else "unknown console"
+    )
     message = (
-        f"{username} is now online playing {game}. "
+        f"{username} is now online playing {game} ({platformstr}). "
         f"Last status update: {lastchange.strftime('%b %d, %Y at %I:%M %p')}."
     )
-    send_ntfy_notification(title, message, priority=5, tags=["warning", "bell"])
+    send_ntfy_notification(title, message, priority=3, tags=["warning", "bell"], icon=icon, image=image)
 
 
 # --- End NTFY Functions ---
 
 # --- NTFY Test Notifications ---
 # The test logic has been updated for ntfy.
-ntfy_enabled = config.get("ntfy", {}).get("enabled", False)  # Safely check if ntfy is enabled
+ntfy_enabled = config.get("ntfy", {}).get(
+    "enabled", False
+)  # Safely check if ntfy is enabled
 
 if ntfy_enabled:
     sendtest_mode = config.get("ntfy", {}).get("sendtest", "off")
@@ -146,7 +181,9 @@ if ntfy_enabled:
 nxapi = None
 if config.get("windowsmode") == True:
     # Using .get() for safer access to optional config keys
-    nxapi = subprocess.run(["powershell.exe", "nxapi", "nso", "friends", "--json"], capture_output=True)
+    nxapi = subprocess.run(
+        ["powershell.exe", "nxapi", "nso", "friends", "--json"], capture_output=True
+    )
 else:
     nxapi = subprocess.run(["nxapi", "nso", "friends", "--json"], capture_output=True)
 
@@ -165,36 +202,86 @@ for user in config["watched"]:
 
 
 # Checking for watched users online, and making sure their status has changed since the last time the script ran
-def check_and_send_notification(user):  # Renamed function
+def check_and_send_notification(user, friendscache):  # Renamed function
+    
+    friend_cached_state = next(
+        (friend for friend in friendscache if friend.get("nsaId") == user.get("nsaId")),
+        {}
+    )
+
     updated_at = datetime.datetime.fromtimestamp(user["presence"]["updatedAt"])
 
     if updated_at > lastchecktime:
-        is_online = user["presence"]["state"] == "ONLINE"
+        is_online = user.get("presence").get("state") == "ONLINE"
+        user_icon = user.get("imageUri")
 
         game_name = str()
+        game_icon = str()
         if is_online and "game" in user["presence"]:
-            game_name = user["presence"]["game"]["name"]
+            game_name = user.get("presence").get("game").get("name")
+            game_icon = user.get("presence").get("game").get("imageUri")
         elif is_online:
             game_name = "Undisclosed Game"  # Fallback if game info is missing
 
-        if (user["name"] in watched or user["nsaId"] in watched) and is_online:
-            print(user["name"], "is watched and went online!")
-            if ntfy_enabled:  # Check if ntfy is enabled
-                # Use .get() for safer alias lookup
-                nick = config.get("aliases", {}).get(str(user["nsaId"]), user["name"])
-                send_ntfy_onlinewatched(nick, game_name, updated_at)  # Use ntfy function
-        elif is_online and config.get("watchedonly") == False:
-            print(user["name"], "went online!")
-            if ntfy_enabled:  # Check if ntfy is enabled
-                nick = config.get("aliases", {}).get(str(user["nsaId"]), user["name"])
-                send_ntfy_online(nick, game_name, updated_at)  # Use ntfy function
+        if is_online:
+            if (
+                not friend_cached_state.get("presence", {})
+                .get("game", {})
+                .get("name", {})
+                == game_name
+            ):
+                if user.get("name") in watched or user.get("nsaId") in watched:
+                    print(user.get("name"), "is watched and went online!")
+                    if ntfy_enabled:  # Check if ntfy is enabled
+                        # Use .get() for safer alias lookup
+                        nick = config.get("aliases", {}).get(
+                            str(user.get("nsaId")), user.get("name")
+                        )
+                        send_ntfy_onlinewatched(
+                            nick,
+                            game_name,
+                            updated_at,
+                            user_icon,
+                            game_icon,
+                            user.get("presence").get("platform"),
+                        )  # Use ntfy function
+                elif config.get("watchedonly") == False:
+                    print(user.get("name"), "went online!")
+                    if ntfy_enabled:  # Check if ntfy is enabled
+                        nick = config.get("aliases", {}).get(
+                            str(user.get("nsaId")), user.get("name")
+                        )
+                        send_ntfy_online(
+                            nick,
+                            game_name,
+                            updated_at,
+                            user_icon,
+                            game_icon,
+                            user.get("presence").get("platform"),
+                        )  # Use ntfy function
+            else:
+                print(
+                    f"{user.get("name")} is online, but they're playing the same game as before"
+                )
         elif not is_online:
-            print(user["name"], "went offline.")
+            print(user.get("name"), "went offline.")
 
+friendscache = []
+if os.path.exists(friendscachefile):
+    print("Loading friends cache")
+
+    try:
+        with open(friendscachefile) as f:
+            friendscache = json.load(f)
+    except:
+        print("The friends cache didn't load properly. Continuing with empty friends cache.")
 
 # Iterate through friends and call the check function
 for friend in friends:
-    check_and_send_notification(friend)  # Use the renamed function
+    check_and_send_notification(friend, friendscache)  # Use the renamed function
+
+with open(friendscachefile, "w") as f:
+    json.dump(friends, f, indent=4)
 
 # Update the last check time
 with open(lastcheckpath, "w") as f:
