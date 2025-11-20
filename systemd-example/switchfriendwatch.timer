@@ -1,0 +1,9 @@
+[Unit]
+Description=Run Switch Friend Watch every 15 minutes (System Timer)
+
+[Timer]
+OnUnitActiveSec=1min
+# The timer will wait for the service to complete before starting the countdown again.
+
+[Install]
+WantedBy=timers.target

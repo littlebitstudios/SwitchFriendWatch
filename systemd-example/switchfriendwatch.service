@@ -1,0 +1,28 @@
+[Unit]
+Description=Switch Friend Watch Python Script (User: jaherron)
+# Ensure the file system is ready before running
+After=network.target
+
+[Service]
+# Replace User and Group with your username
+User=jaherron
+Group=jaherron
+
+Type=oneshot
+
+# The command to execute, change this to where your venv and switchfriendwatch.py are
+ExecStart=/home/jaherron/code/gitrepos/SwitchFriendWatch/.venv/bin/python /home/jaherron/code/gitrepos/SwitchFriendWatch/switchfriendwatch.py
+
+# Set working directory for relative paths in the script, change this to where the SwitchFriendWatch repo was cloned to
+WorkingDirectory=/home/jaherron/code/gitrepos/SwitchFriendWatch
+
+# Direct output to the system journal
+StandardOutput=journal
+StandardError=journal
+
+# Set environment variables if needed, e.g., Environment="PATH=/usr/bin:/bin"
+# Run "echo $PATH" and put what appears after the equals sign below
+Environment="PATH=/home/jaherron/code/gitrepos/SwitchFriendWatch/.venv/bin:/home/jaherron/go/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/home/jaherron/.vscode-server/data/User/globalStorage/github.copilot-chat/debugCommand:/home/jaherron/.vscode-server/data/User/globalStorage/github.copilot-chat/copilotCli:/home/jaherron/.vscode-server/cli/servers/Stable-cb1933bbc38d329b3595673a600fab5c7368f0a7/server/bin/remote-cli:/home/jaherron/.local/bin:/home/jaherron/go/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/home/jaherron/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/home/jaherron/.dotnet/tools:/home/jaherron/.local/bin:/home/jaherron/.dotnet/tools:/scripts:/home/jaherron/node_modules:/snap/bin:/home/jaherron/.local/bin:/home/jaherron/.local/bin:/home/jaherron/.vscode-server/extensions/ms-python.debugpy-2025.16.0-linux-x64/bundled/scripts/noConfigScripts:/scripts:/home/jaherron/node_modules:/snap/bin:/home/jaherron/.local/bin"
+
+[Install]
+WantedBy=multi-user.target
