@@ -8,6 +8,7 @@ import requests  # Added for sending ntfy push notifications
 
 softwarepath = os.path.expanduser("~/.littlebitstudios/switchfriendwatch/")
 configpath = softwarepath + "configuration.yaml"
+friendscache = softwarepath + "friendscache.json"
 lastcheckpath = softwarepath + "lastcheck.txt"
 
 # Ensure the lastcheckpath file exists and read the last check time
@@ -111,28 +112,9 @@ def send_ntfy_onlinewatched(username, game, lastchange):
 
 # --- End NTFY Functions ---
 
-# Gather NSO friend data from nxapi
-nxapi = None
-if config.get("windowsmode") == True:
-    # Using .get() for safer access to optional config keys
-    nxapi = subprocess.run(
-        ["powershell.exe", "nxapi", "nso", "friends", "--json"], capture_output=True
-    )
-else:
-    nxapi = subprocess.run(["nxapi", "nso", "friends", "--json"], capture_output=True)
-
-friends = None
-if nxapi.returncode == 0:
-    friends = json.loads(nxapi.stdout.decode("utf-8"))
-else:
-    print("Error running nxapi. Please check the tool and its installation.")
-    exit()  # Exit if we can't get friend data
-
 # --- NTFY Test Notifications ---
 # The test logic has been updated for ntfy.
-ntfy_enabled = config.get("ntfy", {}).get(
-    "enabled", False
-)  # Safely check if ntfy is enabled
+ntfy_enabled = config.get("ntfy", {}).get("enabled", False)  # Safely check if ntfy is enabled
 
 if ntfy_enabled:
     sendtest_mode = config.get("ntfy", {}).get("sendtest", "off")
@@ -159,6 +141,21 @@ if ntfy_enabled:
         config["ntfy"]["sendtest"] = "off"
         exit()
 # --- End NTFY Test Notifications ---
+
+# Gather NSO friend data from nxapi
+nxapi = None
+if config.get("windowsmode") == True:
+    # Using .get() for safer access to optional config keys
+    nxapi = subprocess.run(["powershell.exe", "nxapi", "nso", "friends", "--json"], capture_output=True)
+else:
+    nxapi = subprocess.run(["nxapi", "nso", "friends", "--json"], capture_output=True)
+
+friends = None
+if nxapi.returncode == 0:
+    friends = json.loads(nxapi.stdout.decode("utf-8"))
+else:
+    print("Error running nxapi. Please check the tool and its installation.")
+    exit()  # Exit if we can't get friend data
 
 print("Last run time:", lastchecktime.strftime("%b %d, %Y at %I:%M %p"))
 
