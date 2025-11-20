@@ -259,6 +259,8 @@ def check_and_send_notification(user, friendscache):  # Renamed function
                             game_icon,
                             user.get("presence").get("platform"),
                         )  # Use ntfy function
+                else:
+                    print(f"{user.get("name")} is online but watchedonly is true, not sending notification")
             else:
                 print(
                     f"{user.get("name")} is online, but they're playing the same game as before"
